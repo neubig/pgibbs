@@ -42,10 +42,11 @@ public:
 		addConfigEntry("iters",   "10", "The number of iterations to perform");
 		addConfigEntry("threads", "1",  "The number of threads to use");
 		addConfigEntry("blocksize",  "1",  "The size of one block (for blocked sampling)");
-		addConfigEntry("shuffle",  "false",  "Whether to shuffle");
+		addConfigEntry("shuffle",  "true",  "Whether to shuffle");
 		addConfigEntry("skipmh",  "false",  "Whether to skip the Metropolis-Hastings step");
 		addConfigEntry("printmod",  "false",  "Whether to print the model probabilities");
 		addConfigEntry("sampmeth", "sequence",  "Sampling method (sequence,parallel,block)");
+		addConfigEntry("randseed",  "0",  "The seed for the random number generator (0=time)");
     }
 
     void dieOnHelp(const string & str) const {

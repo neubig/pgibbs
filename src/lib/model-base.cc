@@ -68,6 +68,9 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
     prefix_ = mainArgs[mainArgs.size()-1];
     sentAccepted_ = vector<int>(cs,0);
 
+    // seed the random number generator, with the time if necessary
+    srand( conf_.getInt("randseed") > 0 ? conf_.getInt("randseed") : time(NULL) );
+
 }
 
 template <class Sent, class Labs>
@@ -176,6 +179,7 @@ void ModelBase<Sent,Labs>::trainInSequence(CorpusBase<Sent> & corp, LabelsBase<S
         // do a sampling pass over the whole corpus 
         gettimeofday(&tStart, NULL);
         samplingPass<Sent,Labs>(&job);
+        likelihood_ = job.likelihood_; accepted_ = job.accepted_;
         gettimeofday(&tEnd, NULL);
         iterTime_ = timeDifference(tStart,tEnd);
 
