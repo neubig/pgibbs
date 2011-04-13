@@ -67,6 +67,7 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
     vector<string> mainArgs = conf_.getMainArgs();
     prefix_ = mainArgs[mainArgs.size()-1];
     sentAccepted_ = vector<int>(cs,0);
+    sampParam_ = conf_.getBool("sampparam");
 
     // seed the random number generator, with the time if necessary
     srand( conf_.getInt("randseed") > 0 ? conf_.getInt("randseed") : time(NULL) );
@@ -187,7 +188,8 @@ void ModelBase<Sent,Labs>::trainInSequence(CorpusBase<Sent> & corp, LabelsBase<S
         printIterationResult(iter,labs);
 
         // sample the parameters
-        sampleParameters();
+        if(sampParam_)
+            sampleParameters();
         
     }
 
@@ -251,7 +253,8 @@ void ModelBase<Sent,Labs>::trainInParallel(CorpusBase<Sent> & corp, LabelsBase<S
         printIterationResult(iter,labs);
 
         // sample the parameters
-        sampleParameters();
+        if(sampParam_)
+            sampleParameters();
         
     }
 
@@ -374,7 +377,8 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
         printIterationResult(iter,labs);
 
         // sample the parameters
-        sampleParameters();
+        if(sampParam_)
+            sampleParameters();
         
     }
 }

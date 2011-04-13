@@ -16,7 +16,7 @@ protected:
 
     // saved variables used in every model
     int iters_, accepted_, sents_, numThreads_, blockSize_;
-    bool doShuffle_, skipMH_, printModel_, printStatus_;
+    bool doShuffle_, skipMH_, printModel_, printStatus_, sampParam_;
     string prefix_;
     vector<int> sentOrder_, sentAccepted_;
     vector<bool> sentInc_;

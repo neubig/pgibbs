@@ -16,10 +16,7 @@ public:
         setUsage("~~~ pgibbs-hmm ~~~\n  by Graham Neubig\n\nLearns a hidden Markov model using Gibbs sampling.\n\nUsage: pgibbs-hmm INPUT_FILE OUTPUT_PREFIX\n");
 		
 		addConfigEntry("classes", "10", "The number of classes to use");
-
-		addConfigEntry("samphyp", "false", "Whether to sample the hyperparameters.");
 		addConfigEntry("usepy",   "false", "Whether to use a PY distribution (otherwise Dirichlet)");
-		
 		addConfigEntry("tstr",  "0.1", "The strength of the transition distribution.");
 		addConfigEntry("estr",  "0.1", "The strength of the emission distribution.");
 		addConfigEntry("tdisc", "0.0", "The discount of the transition distribution (PY only).");
