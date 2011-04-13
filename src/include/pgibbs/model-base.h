@@ -32,7 +32,7 @@ public:
     virtual ~ModelBase() { };
 
     // function to initialize the model (add all sentences)
-    void initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
+    virtual void initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
 
     // train in a single thread
     void trainInSequence(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
@@ -71,8 +71,14 @@ public:
     virtual double removeSentence(int sid, const Sent & sent, const Labs & labs) = 0;
 
     // sampling functions
+    // must be called between any changes to the model and sampling
     virtual void cacheProbabilities() = 0;
+    // sample a single sentence from the distribution
+    //  return is the proposal probability of the old and new labels
     virtual pair<double,double> sampleSentence(int sid, const Sent & sent, Labs & oldLabs, Labs & newLabs) const = 0;
+
+    // sample the parameters
+    virtual void sampleParameters() = 0;
 
     // check to make sure that everything has been removed properly
     virtual void checkEmpty() const = 0;

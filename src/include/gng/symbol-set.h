@@ -4,6 +4,7 @@
 #include "string.h"
 #include <tr1/unordered_map>
 #include <vector>
+#include <stdexcept>
 
 namespace gng {
 
@@ -21,6 +22,8 @@ public:
     SymbolSet() { }
 
     const Key & getSymbol(T id) const {
+        if(id >= size())
+            throw std::runtime_error("Size overflow in getSymbol");
         return vocab_[id];
     }
     T getId(const Key & sym, bool add = false) {

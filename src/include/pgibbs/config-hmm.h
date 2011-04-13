@@ -25,14 +25,16 @@ public:
 		addConfigEntry("tdisc", "0.0", "The discount of the transition distribution (PY only).");
 		addConfigEntry("edisc", "0.0", "The discount of the emission distribution (PY only).");
 
-		addConfigEntry("tstra",  "0.0", "The alpha for the strength of the transition distribution.");
-		addConfigEntry("estra",  "0.0", "The alpha for the strength of the emission distribution.");
-		addConfigEntry("tdisca", "0.0", "The alpha for the discount of the transition distribution (PY only).");
-		addConfigEntry("edisca", "0.0", "The alpha for the discount of the emission distribution (PY only).");
-		addConfigEntry("tstrb",  "0.0", "The beta for the strength of the transition distribution.");
-		addConfigEntry("estrb",  "0.0", "The beta for the strength of the emission distribution.");
-		addConfigEntry("tdiscb", "0.0", "The beta for the discount of the transition distribution (PY only).");
-		addConfigEntry("ediscb", "0.0", "The beta for the discount of the emission distribution (PY only).");
+		addConfigEntry("tstra",  "1.0", "The alpha for the strength of the transition distribution.");
+		addConfigEntry("estra",  "1.0", "The alpha for the strength of the emission distribution.");
+		addConfigEntry("tdisca", "1.0", "The alpha for the discount of the transition distribution (PY only).");
+		addConfigEntry("edisca", "1.0", "The alpha for the discount of the emission distribution (PY only).");
+		addConfigEntry("tstrb",  "1.0", "The beta for the strength of the transition distribution.");
+		addConfigEntry("estrb",  "1.0", "The beta for the strength of the emission distribution.");
+		addConfigEntry("tdiscb", "1.0", "The beta for the discount of the transition distribution (PY only).");
+		addConfigEntry("ediscb", "1.0", "The beta for the discount of the emission distribution (PY only).");
+
+        addConfigEntry("base", "uniform", "The distribution for the base measure (uniform/unigram).");
 		
 	}
 		

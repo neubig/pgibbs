@@ -8,11 +8,6 @@
 #include <cmath>
 #include <iostream>
 
-#define PRIOR_SA 2.0
-#define PRIOR_SB 1.0
-#define PRIOR_DA 2.0
-#define PRIOR_DB 2.0
-
 namespace pgibbs {
 
 class PyTableSet : public std::vector< int > {
@@ -78,9 +73,9 @@ private:
     typedef PyTableSet::iterator PyTableSetIter;
     typedef PyTableSet::const_iterator PyTableSetCIter;
 
-    int total_, tables_;
+    int customers_, tables_;
     Index counts_;
-    double spAlpha_, spBeta_, dpAlpha_, dpBeta_;
+    // double spAlpha_, spBeta_, dpAlpha_, dpBeta_;
 
     // whether a table was removed
     bool removedTable_;
@@ -89,22 +84,21 @@ private:
 
 public:
 
-    PyDist(double stren, double disc) : total_(0), tables_(0), counts_(), 
-        spAlpha_(PRIOR_SA), spBeta_(PRIOR_SB), dpAlpha_(PRIOR_DA), dpBeta_(PRIOR_DB),
+    PyDist(double stren, double disc) : customers_(0), tables_(0), counts_(), 
         stren_(stren), disc_(disc) { }
 
     double getProb(int id, double base) const {
         const PyTableSet * tab = counts_.getTableSet(id);
         double myCount = tab ? tab->total-disc_*tab->size() : 0;
-        // cerr << "getProb("<<id<<","<<base<<"): ( "<<myCount<<"+"<<base<<"*("<<stren_<<"+"<<tables_<<"*"<<disc_<<") )/("<<total_<<"+"<<stren_<<")"<<endl;
-        return ( myCount+base*(stren_+tables_*disc_) )/(total_+stren_);
+        // cerr << "getProb("<<id<<","<<base<<"): ( "<<myCount<<"+"<<base<<"*("<<stren_<<"+"<<tables_<<"*"<<disc_<<") )/("<<customers_<<"+"<<stren_<<")"<<endl;
+        return ( myCount+base*(stren_+tables_*disc_) )/(customers_+stren_);
     }
     int getTotal(int id) const {
         return counts_.getTotal(id);
     }
 
     double getFallbackProb() const {
-        return (stren_+tables_*disc_)/(total_+stren_);
+        return (stren_+tables_*disc_)/(customers_+stren_);
     }
 
     std::vector<double> getAllProbs(const std::vector<double> & bases) const {
@@ -140,7 +134,7 @@ public:
         }
         (*it)++;
         set.total++;
-        total_++;
+        customers_++;
     }
 
     void addNew(int id) {
@@ -148,7 +142,7 @@ public:
         set.push_back(1);
         set.total++;
         tables_++;
-        total_++;
+        customers_++;
     }
 
     // add one and return the probability
@@ -184,7 +178,7 @@ public:
         }
         (*it)--;
         set.total--;
-        total_--;
+        customers_--;
         if((*it) == 0) {
             removedTable_ = true;
             tables_--;
@@ -193,37 +187,82 @@ public:
         return getProb(id,base);
     }
 
-    // sample the parameters
-    void sampleParameters() {
-        double x = total_ > 1 ? betaSample(stren_+1,total_-1) : 1;
-        double y = 0, z = 0;
-        for(int i = 1; i < tables_; i++)
-            y += bernoulliSample(stren_/(stren_+disc_*i));
-        for(typename Index::iterator it2 = counts_.begin(); it2 != counts_.end(); it2++) {
-            const PyTableSet & set = counts_.iterTableSet(it2);
-            for(PyTableSet::const_iterator it = set.begin();
-                    it != set.end(); it++) { 
-                for(int k = 1; k < (*it); k++) {
-                    z += (1-bernoulliSample((k-1)/(k-disc_)));
+    // --------- tied sampling for multiple distributions ---------------
+
+protected:
+    // functions to gather counts from multiple distributions
+    typedef unordered_map<int, int> CountMap;
+    void addCount(CountMap & map, int place) {
+        pair<CountMap::iterator,bool> p = map.insert(pair<int,int>(place,0));
+        p.first->second++;
+    }
+    void gatherCounts(CountMap & nodeCustCounts,CountMap & nodeTableCounts,CountMap & tableCustCounts, int & totalCustCount, int & totalTableCount) {
+        totalCustCount += customers_;
+        totalTableCount += tables_;
+        pair<CountMap::iterator,bool> ret;
+        if(tables_ > 1) {
+            addCount(nodeTableCounts,tables_);
+            addCount(nodeCustCounts,customers_);
+        }
+        // HERE 
+        for(typename Index::iterator it = counts_.begin(); it != counts_.end(); it++) {
+            const PyTableSet & tabs = counts_.iterTableSet(it);
+            const int tabsize = tabs.size();
+            for(int i = 0; i < tabsize; i++)
+                if(tabs[i] > 1)
+                    addCount(tableCustCounts,tabs[i]);
+        }
+    }
+
+public:
+
+
+    // sample parameters for several distributions with tied parameters
+    //  use da, db, sa, sb as prior probabilities
+    static std::pair<double,double> sampleParameters(std::vector<PyDist*> & dists, double sa, double sb, double da, double db) { 
+        // gather the counts
+        CountMap nodeTableCounts, nodeCustCounts, tableCustCounts;
+        int totalCustCount = 0, totalTableCount = 0;
+        double stren = dists[0]->getStrength(), disc = dists[0]->getDiscount();
+        for(int i = 0; i < dists.size(); i++) {
+#ifdef DEBUG_ON
+            if(dists[i]->getStrength() != stren || dists[i]->getDiscount() != disc)
+                THROW_ERROR("Attempted to sample for a mixture where the strength/disc are not the same");
+#endif
+            dists[i]->gatherCounts(nodeCustCounts,nodeTableCounts,tableCustCounts,totalCustCount,totalTableCount);
+        }
+        // calculate and add the auxiliary variables
+        int yui = 0;
+        for(CountMap::const_iterator it = nodeTableCounts.begin(); it != nodeTableCounts.end(); it++) {
+            for(int j = 1; j < it->first; j++) {
+                for(int k = 0; k < it->second; k++) {
+                    yui = bernoulliSample(stren/(stren+disc*j));
+                    da += (1-yui);
+                    sa += yui;
                 }
             }
         }
-        // std::cerr << "disc_ = betaSample("<<dpAlpha_<<"+"<<(tables_-1)<<"-"<<y<<","<<dpBeta_<<"+"<<z<<")"<<std::endl;
-        disc_ = betaSample(dpAlpha_+(tables_-1)-y,dpBeta_+z);
-        // std::cerr << "stren_ = gammaSample("<<spAlpha_<<"+"<<y<<","<<spBeta_<<"-log("<<x<<"))"<<std::endl;
-        stren_ = gammaSample(spAlpha_+y,spBeta_-log(x));
+        for(CountMap::const_iterator it = nodeCustCounts.begin(); it != nodeCustCounts.end(); it++)
+            for(int k = 0; k < it->second; k++)
+                sb -= log(betaSample(stren+1,it->first-1));
+        for(CountMap::const_iterator it = tableCustCounts.begin(); it != tableCustCounts.end(); it++)
+            for(int j = 1; j < it->first; j++)
+                for(int k = 0; k < it->second; k++)
+                    db += (1-bernoulliSample((j-1)/(j-disc)));
+        // sample the new parameters and re-set the parameters of the distributions
+        pair<double,double> ret( gammaSample(sa,1/sb), betaSample(da,db) );
+        for(int i = 0; i < dists.size(); i++) {
+            dists[i]->setStrength(ret.first);
+            dists[i]->setDiscount(ret.second);
+        }
+        return ret;
     }
-
+    
     double getStrength() const { return stren_; }
     void setStrength(double stren) { stren_ = stren; }
     double getDiscount() const { return disc_; }
     void setDiscount(double disc) { disc_ = disc; }
     int getTableCount() const { return tables_; }
-
-    void setDiscountAlpha(double v) { dpAlpha_ = v; }
-    void setDiscountBeta(double v) { dpBeta_ = v; }
-    void setStrengthAlpha(double v) { spAlpha_ = v; }
-    void setStrengthBeta(double v) { spBeta_ = v; }
 
 };
 

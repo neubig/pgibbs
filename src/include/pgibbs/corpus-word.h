@@ -19,11 +19,9 @@ class WordCorpus : public CorpusBase< WordSent > {
 
 public:
 
-    SymbolMap<string,int> ids;
-
     WordCorpus() { }
 
-    int getVocabSize() { return ids.size(); }
+    int getVocabSize() { return ids_.size(); }
 
     // load the corpus, and pad on either side with words if necessary
     void load(istream & in, bool padSent = false, int padId = -1) {
@@ -33,7 +31,7 @@ public:
             vector<int> vals;
             if(padSent) vals.push_back(padId);
             while(iss >> str)
-                vals.push_back(ids.getId(str,true));
+                vals.push_back(ids_.getId(str,true));
             if(padSent) vals.push_back(padId);
             push_back(vals);
         }

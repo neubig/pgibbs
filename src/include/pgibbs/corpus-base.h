@@ -6,7 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include "definitions.h"
-#include "gng/symbol-map.h"
+#include "gng/symbol-set.h"
 
 // TODO: fix
 using namespace std;
@@ -17,7 +17,10 @@ template < class Sent >
 class CorpusBase : public vector< Sent > {
 
 protected:
-    SymbolMap<string,int> ids_; // a mapping from words to IDs
+    SymbolSet<string,int> ids_; // a mapping from words to IDs
+
+public:
+    string getSymbol(int id) { return ids_.getSymbol(id); }
 
 };
 

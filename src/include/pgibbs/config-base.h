@@ -47,6 +47,7 @@ public:
 		addConfigEntry("printmod",  "false",  "Whether to print the model probabilities");
 		addConfigEntry("sampmeth", "sequence",  "Sampling method (sequence,parallel,block)");
 		addConfigEntry("randseed",  "0",  "The seed for the random number generator (0=time)");
+        addConfigEntry("sampparam", "true", "Whether to sample the parameters" );
     }
 
     void dieOnHelp(const string & str) const {
@@ -71,7 +72,7 @@ public:
         for(vector<string>::const_iterator it = argOrder_.begin(); it != argOrder_.end(); it++) {
             ConfigMap::const_iterator oit = optArgs_.find(*it);
             if(oit->second.second.length() != 0)
-                cerr << " -"<<oit->first<<" \t"<<oit->second.first<<endl;
+                cout << " -"<<oit->first<<" \t"<<oit->second.first<<endl;
         }
     }
 

@@ -185,6 +185,9 @@ void ModelBase<Sent,Labs>::trainInSequence(CorpusBase<Sent> & corp, LabelsBase<S
 
         // print information about the iteration
         printIterationResult(iter,labs);
+
+        // sample the parameters
+        sampleParameters();
         
     }
 
@@ -246,6 +249,9 @@ void ModelBase<Sent,Labs>::trainInParallel(CorpusBase<Sent> & corp, LabelsBase<S
         
         // print information about the iteration
         printIterationResult(iter,labs);
+
+        // sample the parameters
+        sampleParameters();
         
     }
 
@@ -366,6 +372,9 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
  
         // print information about the iteration
         printIterationResult(iter,labs);
+
+        // sample the parameters
+        sampleParameters();
         
     }
 }
