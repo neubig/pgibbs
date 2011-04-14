@@ -223,7 +223,7 @@ public:
         CountMap nodeTableCounts, nodeCustCounts, tableCustCounts;
         int totalCustCount = 0, totalTableCount = 0;
         double stren = dists[0]->getStrength(), disc = dists[0]->getDiscount();
-        for(int i = 0; i < dists.size(); i++) {
+        for(int i = 0; i < (int)dists.size(); i++) {
 #ifdef DEBUG_ON
             if(dists[i]->getStrength() != stren || dists[i]->getDiscount() != disc)
                 THROW_ERROR("Attempted to sample for a mixture where the strength/disc are not the same");
@@ -250,7 +250,7 @@ public:
                     db += (1-bernoulliSample((j-1)/(j-disc)));
         // sample the new parameters and re-set the parameters of the distributions
         pair<double,double> ret( gammaSample(sa,1/sb), betaSample(da,db) );
-        for(int i = 0; i < dists.size(); i++) {
+        for(int i = 0; i < (int)dists.size(); i++) {
             dists[i]->setStrength(ret.first);
             dists[i]->setDiscount(ret.second);
         }

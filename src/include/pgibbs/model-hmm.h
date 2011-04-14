@@ -25,14 +25,26 @@ protected:
     // cache of the transition probabilities
     vector<double> tMat_;
 
-private:
-    
     // cached probabilities
     vector<double> baseE_, baseT_;
     double tStrA_, tStrB_, tDiscA_, tDiscB_;
-    double eStrA_, eStrB_, eDiscA_, eDiscB_;
+    double eStrA_, eStrB_, eDiscA_, eDiscB_;    
 
 public:
+    HMMModel(const HMMModel & mod) : ModelBase<WordSent,ClassSent>(mod),
+    classes_(mod.classes_), words_(mod.words_), base_(mod.base_), tMat_(mod.tMat_), 
+    baseE_(mod.baseE_), baseT_(mod.baseT_), 
+    tStrA_(mod.tStrA_), tStrB_(mod.tStrB_), tDiscA_(mod.tDiscA_), tDiscB_(mod.tDiscB_), 
+    eStrA_(mod.eStrA_), eStrB_(mod.eStrB_), eDiscA_(mod.eDiscA_), eDiscB_(mod.eDiscB_)
+    {
+	    tDists_=vector< PyDist<PyDenseIndex>* >(mod.tDists_.size());
+	    eDists_=vector< PyDist<PySparseIndex>* >(mod.eDists_.size());
+        for(int i = 0; i < (int)tDists_.size(); i++) {
+            tDists_[i] = new PyDist<PyDenseIndex>(*mod.tDists_[i]);
+            eDists_[i] = new PyDist<PySparseIndex>(*mod.eDists_[i]);
+        }
+    }
+
     HMMModel(const HMMConfig & conf) : ModelBase<WordSent,ClassSent>(conf), 
         classes_(conf.getInt("classes")), words_(conf.getInt("words")), 
         base_(conf.getString("base")),
@@ -58,9 +70,9 @@ public:
     }
 
     ~HMMModel() {
-        for(int i = 0; i < tDists_.size(); i++)
+        for(int i = 0; i < (int)tDists_.size(); i++)
             delete tDists_[i];
-        for(int i = 0; i < eDists_.size(); i++)
+        for(int i = 0; i < (int)eDists_.size(); i++)
             delete eDists_[i];
 
     }

@@ -61,7 +61,7 @@ public:
     // -------------------- getters/setters -----------------------------
 
     int getAccepted() const { return accepted_; }
-    bool getSkipIters() const { return skipIters_; }
+    int getSkipIters() const { return skipIters_; }
     bool getPrintStatus() const { return printStatus_; }
 
     // ------------ virtual functions to overload ------------------------

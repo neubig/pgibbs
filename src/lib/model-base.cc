@@ -64,7 +64,8 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
 
     // variables shared by all training processes
     iters_ = conf_.getInt("iters");
-    doShuffle_ = conf_.getBool("shuffle"); skipIters_ = conf_.getInt("skipiters");
+    doShuffle_ = conf_.getBool("shuffle");
+    skipIters_ = conf_.getInt("skipiters");
     printModel_ = conf_.getBool("printmod");
     numThreads_ = conf_.getInt("threads"); blockSize_ = conf_.getInt("blocksize"); 
     vector<string> mainArgs = conf_.getMainArgs();
@@ -136,7 +137,7 @@ void* samplingPass(void* ptr) {
         accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
         // cout << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")";
 
-        if(job.mod_->getSkipIters() <= job.iter_ || accept >= 0 || bernoulliSample(exp(accept))) {
+        if(job.mod_->getSkipIters() >= job.iter_ || accept >= 0 || bernoulliSample(exp(accept))) {
             // cout << ": accepted"<<endl;
             job.accepted_++;
             job.sentAccepted_[i]++;
@@ -155,6 +156,7 @@ void* samplingPass(void* ptr) {
         }
 
     }
+    return NULL;
 
 }
 
@@ -279,6 +281,7 @@ void* blockSample(void* ptr) {
         dub = myJob.mod_->sampleSentence(s,(*myJob.corp_)[s],(*myJob.labs_)[s],(*myJob.labs_)[s]);
         myJob.propProbs_.first += dub.first; myJob.propProbs_.second += dub.second;
     }
+    return NULL;
 }
 
 // train in blocks

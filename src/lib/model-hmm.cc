@@ -7,8 +7,8 @@ using namespace pgibbs;
 // add the sentence and return the log probability
 double HMMModel::addSentence(int sid, const WordSent & sent, const ClassSent & tags) {
 #ifdef DEBUG_ON
-    if(sent.size() != tags.size())
-        THROW_ERROR("Sent length != tag length ("<<sent.size()<<" != "<<tags.size()<<")");
+    if(sent.length() != tags.length())
+        THROW_ERROR("Sent length != tag length ("<<sent.length()<<" != "<<tags.length()<<")");
     if(sentInc_[sid])
         THROW_ERROR("Double-adding sentence "<<sid<<" to model");
 #endif
@@ -30,8 +30,8 @@ double HMMModel::addSentence(int sid, const WordSent & sent, const ClassSent & t
 // remove the sentence and return the log probability
 double HMMModel::removeSentence(int sid, const WordSent & sent, const ClassSent & tags) {
 #ifdef DEBUG_ON
-    if(sent.size() != tags.size())
-        THROW_ERROR("Sent length != tag length ("<<sent.size()<<" != "<<tags.size()<<")");
+    if(sent.length() != tags.length())
+        THROW_ERROR("Sent length != tag length ("<<sent.length()<<" != "<<tags.length()<<")");
     if(!sentInc_[sid])
         THROW_ERROR("Double-removing sentence "<<sid<<" from model");
 #endif
@@ -62,7 +62,7 @@ void HMMModel::cacheProbabilities() {
 // calculate a sample (if necessary) and return the posterior probability
 double HMMModel::backwardStep(const vector<double> & forProbs, ClassSent & tags, bool sample) const {
     // for each word, backwards
-    int cl = classes_+1, sl = tags.size()-1;
+    int cl = classes_+1, sl = tags.length()-1;
     vector<double> myTrans(classes_);
     double totalProb = 0;
     for(int i = sl-1; i > 0; i--) {
@@ -86,14 +86,14 @@ double HMMModel::backwardStep(const vector<double> & forProbs, ClassSent & tags,
 pair<double,double> HMMModel::sampleSentence(int sid, const WordSent & sent, ClassSent & oldTags, ClassSent & newTags) const {
 
     // initialize
-    int cl = classes_+1, sl = newTags.size()-1;
+    int cl = classes_+1, sl = newTags.length()-1;
 
     // sanity check
 #ifdef DEBUG_ON
     if((int)tMat_.size() != cl*cl)
         THROW_ERROR("Transition matrix size "<<tMat_.size()<<" is not " << cl*cl);
-    if(sent.size() != newTags.size())
-        THROW_ERROR("Sentence size "<<sent.size()<<" != tag size "<<newTags.size());
+    if(sent.length() != newTags.length())
+        THROW_ERROR("Sentence size "<<sent.length()<<" != tag size "<<newTags.length());
     if(sentInc_[sid])
         THROW_ERROR("Sampling sentence "<<sid<<" that is already included");
 #endif

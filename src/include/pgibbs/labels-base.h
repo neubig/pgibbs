@@ -22,7 +22,7 @@ public:
 
     LabelsBase() { }
 
-    ~LabelsBase() { }
+    virtual ~LabelsBase() { }
 
     virtual LabelsBase * clone(int* sents, int len) const = 0;
 

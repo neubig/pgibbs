@@ -118,7 +118,7 @@ public:
     int getInt(const string & name) const {
         string str = getString(name);
         int ret = atoi(str.c_str());
-        if(ret == 0 && str != "0")
+        if(ret == 0 && str != "0" && str != "00" && str != "000" && str != "0000")
             DIE_HELP("Value '"<<str<<"' for argument "<<name<<" was not an integer");
         return ret;
     }
