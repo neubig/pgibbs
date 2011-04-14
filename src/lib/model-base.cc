@@ -64,7 +64,7 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
 
     // variables shared by all training processes
     iters_ = conf_.getInt("iters");
-    doShuffle_ = conf_.getBool("shuffle"); skipIters_ = conf_.getBool("skipiters");
+    doShuffle_ = conf_.getBool("shuffle"); skipIters_ = conf_.getInt("skipiters");
     printModel_ = conf_.getBool("printmod");
     numThreads_ = conf_.getInt("threads"); blockSize_ = conf_.getInt("blocksize"); 
     vector<string> mainArgs = conf_.getMainArgs();
@@ -394,3 +394,4 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
 
 // make the functions for the HMM model
 template class ModelBase<WordSent,ClassSent>;
+
