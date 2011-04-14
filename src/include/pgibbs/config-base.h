@@ -43,7 +43,7 @@ public:
 		addConfigEntry("threads", "1",  "The number of threads to use");
 		addConfigEntry("blocksize",  "1",  "The size of one block (for blocked sampling)");
 		addConfigEntry("shuffle",  "true",  "Whether to shuffle");
-		addConfigEntry("skipmh",  "false",  "Whether to skip the Metropolis-Hastings step");
+		addConfigEntry("skipiters",  "0",  "The number of iters for which to skip the Metropolis-Hastings step");
 		addConfigEntry("printmod",  "false",  "Whether to print the model probabilities");
 		addConfigEntry("sampmeth", "sequence",  "Sampling method (sequence,parallel,block)");
 		addConfigEntry("randseed",  "0",  "The seed for the random number generator (0=time)");

@@ -15,8 +15,8 @@ protected:
     ConfigBase conf_;
 
     // saved variables used in every model
-    int iters_, accepted_, sents_, numThreads_, blockSize_;
-    bool doShuffle_, skipMH_, printModel_, printStatus_, sampParam_;
+    int iters_, accepted_, sents_, numThreads_, blockSize_, skipIters_;
+    bool doShuffle_, printModel_, printStatus_, sampParam_;
     string prefix_;
     vector<int> sentOrder_, sentAccepted_;
     vector<bool> sentInc_;
@@ -25,7 +25,7 @@ protected:
 public:
 
     ModelBase(const ConfigBase & conf) : iters_(0), accepted_(0), sents_(0),
-        numThreads_(1), blockSize_(1) {
+        numThreads_(1), blockSize_(1), skipIters_(0) {
         conf_ = conf;
     }
 
@@ -61,7 +61,7 @@ public:
     // -------------------- getters/setters -----------------------------
 
     int getAccepted() const { return accepted_; }
-    bool getSkipMH() const { return skipMH_; }
+    bool getSkipIters() const { return skipIters_; }
     bool getPrintStatus() const { return printStatus_; }
 
     // ------------ virtual functions to overload ------------------------

@@ -16,6 +16,9 @@ public:
 
     // the thread
     pthread_t thread_;
+    
+    // which iteration we're on
+    int iter_;
 
     // corpus values
     ModelBase<Sent,Labs> * mod_;
@@ -61,7 +64,7 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
 
     // variables shared by all training processes
     iters_ = conf_.getInt("iters");
-    doShuffle_ = conf_.getBool("shuffle"); skipMH_ = conf_.getBool("skipmh");
+    doShuffle_ = conf_.getBool("shuffle"); skipIters_ = conf_.getBool("skipiters");
     printModel_ = conf_.getBool("printmod");
     numThreads_ = conf_.getInt("threads"); blockSize_ = conf_.getInt("blocksize"); 
     vector<string> mainArgs = conf_.getMainArgs();
@@ -89,18 +92,21 @@ void ModelBase<Sent,Labs>::clear(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> 
 // print the results of one iteration
 template <class Sent, class Labs>
 void ModelBase<Sent,Labs>::printIterationResult(int iter, LabelsBase<Sent,Labs> & labs) const {
-    if(printModel_) {
-        // print the model
-        ostringstream modName; modName << prefix_ << "."<<iter<<".mod";
-        ofstream modOut(modName.str().c_str());
-        this->print(modOut);
-        modOut.close();
+    // skip printing iterations for larger values
+    if(iter <= 50 ||  (iter <= 1000 && iter % 10 == 0) || iter % 50 == 0) {
+        if(printModel_) {
+            // print the model
+            ostringstream modName; modName << prefix_ << "."<<iter<<".mod";
+            ofstream modOut(modName.str().c_str());
+            this->print(modOut);
+            modOut.close();
+        }
+        // print the labels
+        ostringstream labName; labName << prefix_ << "."<<iter<<".lab";
+        ofstream labOut(labName.str().c_str());
+        labs.print(labOut); 
+        labOut.close();
     }
-    // print the labels
-    ostringstream labName; labName << prefix_ << "."<<iter<<".lab";
-    ofstream labOut(labName.str().c_str());
-    labs.print(labOut); 
-    labOut.close();
     cout << endl << "Iteration "<<iter<< " (time: "<<iterTime_<<"s)" << endl
          << " Likelihood: "<<likelihood_<<endl
          << " Acceptance rate: "<<100.0*accepted_/labs.size() <<"%" << endl;
@@ -130,7 +136,7 @@ void* samplingPass(void* ptr) {
         accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
         // cout << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")";
 
-        if(job.mod_->getSkipMH() || accept >= 0 || bernoulliSample(exp(accept))) {
+        if(job.mod_->getSkipIters() <= job.iter_ || accept >= 0 || bernoulliSample(exp(accept))) {
             // cout << ": accepted"<<endl;
             job.accepted_++;
             job.sentAccepted_[i]++;
@@ -179,6 +185,7 @@ void ModelBase<Sent,Labs>::trainInSequence(CorpusBase<Sent> & corp, LabelsBase<S
 
         // do a sampling pass over the whole corpus 
         gettimeofday(&tStart, NULL);
+        job.iter_ = iter;
         samplingPass<Sent,Labs>(&job);
         likelihood_ = job.likelihood_; accepted_ = job.accepted_;
         gettimeofday(&tEnd, NULL);
@@ -228,6 +235,7 @@ void ModelBase<Sent,Labs>::trainInParallel(CorpusBase<Sent> & corp, LabelsBase<S
         for(int i = 0; i < numThreads_; i++) {
             jobs[i].mod_ = this->clone();
             jobs[i].labs_ = labs.clone(jobs[i].sentOrder_,jobs[i].getNumSents());
+            jobs[i].iter_ = iter;
             pthread_create( &jobs[i].thread_, NULL, samplingPass<Sent,Labs>, (void*) &jobs[i]);
             // samplingPass<Sent,Labs>(&jobs[i]);
         }
@@ -320,6 +328,7 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
                 jobs[j].sentOrder_ = (&sentOrder_[i])+j*myBlock/numThreads_;
                 jobs[j].setNumSents( (j+1)*myBlock/numThreads_ - j*myBlock/numThreads_ );
                 jobs[j].propProbs_ = pair<double,double>(0.0,0.0);
+                jobs[j].iter_ = iter;
                 pthread_create( &jobs[j].thread_, NULL, blockSample<Sent,Labs>, (void*) &jobs[j]);
                 // blockSample<Sent,Labs>(&jobs[j]);
             }
@@ -341,7 +350,7 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
             accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
             // cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")";
 
-            if(skipMH_ || accept >= 0 || bernoulliSample(exp(accept))) {
+            if(iter <= skipIters_ || accept >= 0 || bernoulliSample(exp(accept))) {
                 // cout << ": accepted"<<endl;
                 accepted_ += myBlock;
                 for(int j = 0; j < myBlock; j++)

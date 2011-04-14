@@ -14,7 +14,7 @@ double HMMModel::addSentence(int sid, const WordSent & sent, const ClassSent & t
 #endif
     sentInc_[sid] = true;
     double logProb = 0;
-    int sl = sent.size(), i;
+    int sl = sent.length(), i;
     for(i = 1; i < sl-1; i++) {
         // get transition probs and emission probs for all but the last transition
         logProb += log( 
@@ -37,7 +37,7 @@ double HMMModel::removeSentence(int sid, const WordSent & sent, const ClassSent 
 #endif
     sentInc_[sid] = false;
     double logProb = 0;
-    int sl = sent.size(), i;
+    int sl = sent.length(), i;
     for(i = 1; i < sl-1; i++) {
         // get transition probs and emission probs for all but the last transition
         logProb += log( 
@@ -135,7 +135,7 @@ void HMMModel::initialize(CorpusBase<WordSent> & corp, LabelsBase<WordSent,Class
         int cs = corp.size(), ss, sum = 0;
         baseE_ = vector<double>(words_);
         for(int i = 0; i < cs; i++) {
-            ss = corp[i].size()-1;
+            ss = corp[i].length()-1;
             for(int j = 1; j < ss; j++) 
                 baseE_[corp[i][j]]++;
             sum += ss-1;

@@ -2,6 +2,7 @@
 #define CORPUS_WORD_H__
 
 #include "gng/symbol-map.h"
+#include "gng/string.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -13,7 +14,7 @@
 // TODO: fix
 using namespace std;
 
-typedef vector<int> WordSent;
+typedef GenericString<int> WordSent;
 
 class WordCorpus : public CorpusBase< WordSent > {
 

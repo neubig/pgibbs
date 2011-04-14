@@ -32,8 +32,8 @@ public:
         int classes = conf.getInt("classes"), i, j, cs = corp.size();
         for(i = 0; i < cs; i++) {
             const WordSent & ws = corp[i];
-            ClassSent cl(ws.size(),classes);
-            for(j = 1; j < (int)ws.size()-1; j++)
+            ClassSent cl(ws.length(),classes);
+            for(j = 1; j < (int)ws.length()-1; j++)
                 cl[j] = discreteUniformSample(classes);
             push_back(cl);
         }

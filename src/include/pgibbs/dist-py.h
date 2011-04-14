@@ -204,7 +204,6 @@ protected:
             addCount(nodeTableCounts,tables_);
             addCount(nodeCustCounts,customers_);
         }
-        // HERE 
         for(typename Index::iterator it = counts_.begin(); it != counts_.end(); it++) {
             const PyTableSet & tabs = counts_.iterTableSet(it);
             const int tabsize = tabs.size();
