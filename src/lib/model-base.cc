@@ -75,7 +75,9 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
     sampParam_ = conf_.getBool("sampparam");
 
     // seed the random number generator, with the time if necessary
-    srand( conf_.getInt("randseed") > 0 ? conf_.getInt("randseed") : time(NULL) );
+    long mySeed = conf_.getInt("randseed") > 0 ? conf_.getInt("randseed") : time(NULL);
+    srand( mySeed );
+    cerr << "Seeded rand generator with "<<mySeed<<endl;
 
     // get the main arguments
     vector<string> mainArgs = conf_.getMainArgs();
