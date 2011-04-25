@@ -77,7 +77,7 @@ public:
 
     }
 
-    void initialize(CorpusBase<WordSent> & corp, LabelsBase<WordSent,ClassSent> & labs);
+    void initialize(CorpusBase<WordSent> & corp, LabelsBase<WordSent,ClassSent> & labs, bool add);
 
     // virtual functions for processing sentences
     double addSentence(int sid, const WordSent & sent, const ClassSent & labs);
@@ -92,10 +92,10 @@ public:
 
     void checkEmpty() const {
         for(int i = 0; i < (int)tDists_.size(); i++)
-            if(tDists_[i]->getTableCount() != 0)
+            if(!tDists_[i]->isEmpty())
                 THROW_ERROR("Transition model "<<i<<" not equal to zero "<<tDists_[i]->getTableCount());
         for(int i = 0; i < (int)eDists_.size(); i++)
-            if(eDists_[i]->getTableCount() != 0)
+            if(!eDists_[i]->isEmpty())
                 THROW_ERROR("Emission model "<<i<<" not equal to zero "<<eDists_[i]->getTableCount());
     }
 

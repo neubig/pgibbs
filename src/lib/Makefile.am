@@ -1,4 +1,4 @@
-PIACPP = model-base.cc model-hmm.cc
+PIACPP = model-base.cc model-hmm.cc model-ws.cc
 
 AM_CPPFLAGS = -I$(srcdir)/../include
 

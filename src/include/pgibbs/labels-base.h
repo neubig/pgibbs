@@ -28,7 +28,7 @@ public:
 
     virtual void initRandom(const CorpusBase<Sent> & corp, const ConfigBase & conf) = 0;
 
-    virtual void print(ostream & out) = 0;
+    virtual void print(const CorpusBase<Sent> & corp, ostream & out) = 0;
 
 };
 

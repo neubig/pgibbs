@@ -1,6 +1,7 @@
 
 #include "model-base.h"
 #include "model-hmm.h"
+#include "model-ws.h"
 #include "gng/misc-func.h"
 
 using namespace pgibbs;
@@ -49,18 +50,20 @@ public:
 };
 
 template <class Sent, class Labs>
-void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) {
+void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs, bool add) {
 
     // add all sentences in the corpus
     double likelihood = 0;
     int i,cs = corp.size();
     sentOrder_.resize(cs);
     sentInc_.resize(cs,false);
-    for(i = 0; i < cs; i++) {
-        likelihood += addSentence(i,corp[i],labs[i]);
-        sentOrder_[i] = i;
+    if(add) {
+        for(i = 0; i < cs; i++) {
+            likelihood += addSentence(i,corp[i],labs[i]);
+            sentOrder_[i] = i;
+        }
+        cout << "Likelihood after initialization: " << likelihood << endl;
     }
-    cout << "Likelihood after initialization: " << likelihood << endl;
 
     // variables shared by all training processes
     iters_ = conf_.getInt("iters");
@@ -68,13 +71,16 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
     skipIters_ = conf_.getInt("skipiters");
     printModel_ = conf_.getBool("printmod");
     numThreads_ = conf_.getInt("threads"); blockSize_ = conf_.getInt("blocksize"); 
-    vector<string> mainArgs = conf_.getMainArgs();
-    prefix_ = mainArgs[mainArgs.size()-1];
     sentAccepted_ = vector<int>(cs,0);
     sampParam_ = conf_.getBool("sampparam");
 
     // seed the random number generator, with the time if necessary
     srand( conf_.getInt("randseed") > 0 ? conf_.getInt("randseed") : time(NULL) );
+
+    // get the main arguments
+    vector<string> mainArgs = conf_.getMainArgs();
+    if(mainArgs.size() > 0)
+        prefix_ = mainArgs[mainArgs.size()-1];
 
 }
 
@@ -92,7 +98,7 @@ void ModelBase<Sent,Labs>::clear(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> 
 
 // print the results of one iteration
 template <class Sent, class Labs>
-void ModelBase<Sent,Labs>::printIterationResult(int iter, LabelsBase<Sent,Labs> & labs) const {
+void ModelBase<Sent,Labs>::printIterationResult(int iter, const CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) const {
     // skip printing iterations for larger values
     if(iter <= 50 ||  (iter <= 1000 && iter % 10 == 0) || iter % 50 == 0) {
         if(printModel_) {
@@ -105,7 +111,7 @@ void ModelBase<Sent,Labs>::printIterationResult(int iter, LabelsBase<Sent,Labs> 
         // print the labels
         ostringstream labName; labName << prefix_ << "."<<iter<<".lab";
         ofstream labOut(labName.str().c_str());
-        labs.print(labOut); 
+        labs.print(corp,labOut); 
         labOut.close();
     }
     cout << endl << "Iteration "<<iter<< " (time: "<<iterTime_<<"s)" << endl
@@ -135,7 +141,7 @@ void* samplingPass(void* ptr) {
 
         // performing the metropolis-hastings step
         accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
-        // cout << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")";
+        // cerr << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<") == " <<accept<< endl;
 
         if(job.mod_->getSkipIters() >= job.iter_ || accept >= 0 || bernoulliSample(exp(accept))) {
             // cout << ": accepted"<<endl;
@@ -165,7 +171,7 @@ template <class Sent, class Labs>
 void ModelBase<Sent,Labs>::trainInSequence(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) {
 
     // initialize the model
-    initialize(corp,labs);
+    initialize(corp,labs,true);
 
     // training variables
     int cs = corp.size();
@@ -194,7 +200,7 @@ void ModelBase<Sent,Labs>::trainInSequence(CorpusBase<Sent> & corp, LabelsBase<S
         iterTime_ = timeDifference(tStart,tEnd);
 
         // print information about the iteration
-        printIterationResult(iter,labs);
+        printIterationResult(iter,corp,labs);
 
         // sample the parameters
         if(sampParam_)
@@ -209,7 +215,7 @@ template <class Sent, class Labs>
 void ModelBase<Sent,Labs>::trainInParallel(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) {
 
     // initialize the model
-    initialize(corp,labs);
+    initialize(corp,labs,true);
 
     // training variables
     int cs = corp.size();
@@ -260,7 +266,7 @@ void ModelBase<Sent,Labs>::trainInParallel(CorpusBase<Sent> & corp, LabelsBase<S
         iterTime_ = timeDifference(tStart,tEnd);
         
         // print information about the iteration
-        printIterationResult(iter,labs);
+        printIterationResult(iter,corp,labs);
 
         // sample the parameters
         if(sampParam_)
@@ -289,7 +295,7 @@ template <class Sent, class Labs>
 void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) {
     
     // initialize the model
-    initialize(corp,labs);
+    initialize(corp,labs,true);
 
     // training variables
     int cs = corp.size();
@@ -351,7 +357,7 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
 
             // perform the acceptance/rejection step
             accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
-            // cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")";
+            // cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")" << accept<<endl;
 
             if(iter <= skipIters_ || accept >= 0 || bernoulliSample(exp(accept))) {
                 // cout << ": accepted"<<endl;
@@ -386,7 +392,7 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
         iterTime_ = timeDifference(tStart,tEnd);
  
         // print information about the iteration
-        printIterationResult(iter,labs);
+        printIterationResult(iter,corp,labs);
 
         // sample the parameters
         if(sampParam_)
@@ -397,4 +403,4 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
 
 // make the functions for the HMM model
 template class ModelBase<WordSent,ClassSent>;
-
+template class ModelBase<WordSent,Bounds>;

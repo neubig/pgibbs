@@ -77,10 +77,8 @@ private:
     Index counts_;
     // double spAlpha_, spBeta_, dpAlpha_, dpBeta_;
 
-    // whether a table was removed
-    bool removedTable_;
-
     double stren_, disc_;
+    bool tableAdded_, tableRemoved_;
 
 public:
 
@@ -135,6 +133,7 @@ public:
         (*it)++;
         set.total++;
         customers_++;
+        tableAdded_ = false;
     }
 
     void addNew(int id) {
@@ -143,15 +142,17 @@ public:
         set.total++;
         tables_++;
         customers_++;
+        tableAdded_ = true;
     }
 
     // add one and return the probability
     double add(int id, double base) {
         double genProb = getProb(id,0), baseProb = base*getFallbackProb(), totProb = genProb+baseProb;
-        if(bernoulliSample(genProb/totProb))
-            addExisting(id);
-        else
+        tableAdded_ = !bernoulliSample(genProb/totProb);
+        if(tableAdded_)
             addNew(id);
+        else
+            addExisting(id);
         return totProb;
     }
      
@@ -162,7 +163,7 @@ public:
         if(!counts_.getTableSet(id))
             THROW_ERROR("Overflow in PyDist::remove for " << id); 
 #endif
-        removedTable_ = false;
+        tableRemoved_ = false;
         PyTableSet & set = counts_.addTableSet(id);
 #ifdef DEBUG_ON
         if(set.total == 0)
@@ -180,7 +181,7 @@ public:
         set.total--;
         customers_--;
         if((*it) == 0) {
-            removedTable_ = true;
+            tableRemoved_ = true;
             tables_--;
             set.erase(it);
         }
@@ -262,6 +263,9 @@ public:
     double getDiscount() const { return disc_; }
     void setDiscount(double disc) { disc_ = disc; }
     int getTableCount() const { return tables_; }
+    bool tableAdded() const { return tableAdded_; }
+    bool tableRemoved() const { return tableRemoved_; }
+    bool isEmpty() const { return tables_ == 0; }
 
 };
 

@@ -22,8 +22,6 @@ public:
 
     WordCorpus() { }
 
-    int getVocabSize() { return ids_.size(); }
-
     // load the corpus, and pad on either side with words if necessary
     void load(istream & in, bool padSent = false, int padId = -1) {
         string line,str;

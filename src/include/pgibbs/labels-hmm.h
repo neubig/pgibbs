@@ -40,7 +40,7 @@ public:
         }
     }
 
-    void print(ostream & out) {
+    void print(const CorpusBase<WordSent> & corp, ostream & out) {
         int cs = size(), ss, i, j;
         for(i = 0; i < cs; i++) {
             out << (*this)[i][1];

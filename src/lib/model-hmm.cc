@@ -9,6 +9,7 @@ double HMMModel::addSentence(int sid, const WordSent & sent, const ClassSent & t
 #ifdef DEBUG_ON
     if(sent.length() != tags.length())
         THROW_ERROR("Sent length != tag length ("<<sent.length()<<" != "<<tags.length()<<")");
+    if((int)sentInc_.size()<=sid) sentInc_.resize((sid+1)*2,false);
     if(sentInc_[sid])
         THROW_ERROR("Double-adding sentence "<<sid<<" to model");
 #endif
@@ -32,6 +33,7 @@ double HMMModel::removeSentence(int sid, const WordSent & sent, const ClassSent 
 #ifdef DEBUG_ON
     if(sent.length() != tags.length())
         THROW_ERROR("Sent length != tag length ("<<sent.length()<<" != "<<tags.length()<<")");
+    if((int)sentInc_.size()<=sid) sentInc_.resize((sid+1)*2,false);
     if(!sentInc_[sid])
         THROW_ERROR("Double-removing sentence "<<sid<<" from model");
 #endif
@@ -94,7 +96,7 @@ pair<double,double> HMMModel::sampleSentence(int sid, const WordSent & sent, Cla
         THROW_ERROR("Transition matrix size "<<tMat_.size()<<" is not " << cl*cl);
     if(sent.length() != newTags.length())
         THROW_ERROR("Sentence size "<<sent.length()<<" != tag size "<<newTags.length());
-    if(sentInc_[sid])
+    if(sid<(int)sentInc_.size() && sentInc_[sid])
         THROW_ERROR("Sampling sentence "<<sid<<" that is already included");
 #endif
 
@@ -129,8 +131,8 @@ pair<double,double> HMMModel::sampleSentence(int sid, const WordSent & sent, Cla
 }
 
 
-void HMMModel::initialize(CorpusBase<WordSent> & corp, LabelsBase<WordSent,ClassSent> & labs) {
-    ModelBase<WordSent,ClassSent>::initialize(corp,labs);
+void HMMModel::initialize(CorpusBase<WordSent> & corp, LabelsBase<WordSent,ClassSent> & labs, bool add) {
+    ModelBase<WordSent,ClassSent>::initialize(corp,labs,add);
     if(base_ == "unigram") {
         int cs = corp.size(), ss, sum = 0;
         baseE_ = vector<double>(words_);

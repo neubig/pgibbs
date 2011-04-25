@@ -32,7 +32,7 @@ public:
     virtual ~ModelBase() { };
 
     // function to initialize the model (add all sentences)
-    virtual void initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
+    virtual void initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs, bool add);
 
     // train in a single thread
     void trainInSequence(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
@@ -44,7 +44,7 @@ public:
     // function to clear the model (remove all sentences and check if empty)
     void clear(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
 
-    void printIterationResult(int iter, LabelsBase<Sent,Labs> & labs) const;
+    void printIterationResult(int iter, const CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) const;
 
     void train(CorpusBase<Sent> & sent, LabelsBase<Sent,Labs> & labs) {
         string sampMeth = conf_.getString("sampmeth");
