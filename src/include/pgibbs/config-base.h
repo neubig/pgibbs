@@ -96,6 +96,22 @@ public:
         if((int)mainArgs_.size() < minArgs_ || (int)mainArgs_.size() > maxArgs_) {
             DIE_HELP("Wrong number of arguments");
         }
+
+        // method specific settings
+        string sampMeth = getString("sampmeth");
+        if(sampMeth == "sequence") {
+            if(getInt("blocksize") > 1)
+                THROW_ERROR("Blocksize > 1 ("<<getInt("blocksize")<<") for sequence sampling");
+            if(getInt("threads") > 1)
+                THROW_ERROR("Threads > 1 ("<<getInt("blocksize")<<") for sequence sampling");
+        } else if(sampMeth == "parallel") {
+            if(getInt("blocksize") > 1)
+                THROW_ERROR("Blocksize > 1 ("<<getInt("blocksize")<<") for parallel sampling");
+        } else if(sampMeth == "block") {
+            // nothing to check for now
+        } else {
+            THROW_ERROR("Unknown sampling method "<<sampMeth);
+        }
         
 
         printConf();

@@ -14,13 +14,14 @@ WordSent WSModel::makeWords(const WordSent & chars, const Bounds & bounds, bool 
     for(int i = 0; i < (int)bounds.size(); i++)
         if(bounds[i])
             beg.push_back(i+1);
-    WordSent ws(beg.size()-1);
+    WordSent ws(beg.size());
     for(int i = 1; i < (int)beg.size(); i++) {
         if(beg[i]-beg[i-1]>maxLen_)
             THROW_ERROR("String length "<<beg[i]-beg[i-1]<<" (@"<<i<<") exceeded maximum length"<<maxLen_);
         ws[i-1] = symbols_.getId(chars.substr(beg[i-1],beg[i]-beg[i-1]),add);
         // cerr << "adding word "<<ws[i-1]<<" substr("<<beg[i-1]<<","<<beg[i]-beg[i-1]<<")"<<endl;
     }
+    ws[beg.size()-1] = initId_;
     return ws;
 }
 
@@ -52,14 +53,13 @@ double WSModel::addSentence(int sid, const WordSent & sent, const Bounds & bound
         }
         double myProb = log(lm_.addCust(node,tags[i],getBase(tags[i])));
         logProb += myProb;
-        // cerr << " a(n="<<node<<",t="<<tags[i]<<",l="<<symbols_.getSymbol(tags[i]).length()<<",p="<<myProb<<")";
+        // cerr << " a(n="<<node<<",t="<<tags[i]<<",l="<<symbols_.getSymbol(tags[i]).length()<<",p="<<myProb<<")" << endl;
     }
     // cerr << endl;
     return logProb;
 }
 
 // remove the sentence and return the log probability
-// TODO: make words include a first non-terminal word
 double WSModel::removeSentence(int sid, const WordSent & sent, const Bounds & bounds) {
 #ifdef DEBUG_ON
     if(sid >= (int)sentInc_.size() || !sentInc_[sid])
@@ -78,7 +78,7 @@ double WSModel::removeSentence(int sid, const WordSent & sent, const Bounds & bo
         }
         double myProb = log(lm_.removeCust(node,tags[i],getBase(tags[i]))); 
         logProb += myProb;
-        // cerr << " r(n="<<node<<",t="<<tags[i]<<",l="<<symbols_.getSymbol(tags[i]).length()<<",p="<<myProb<<")";
+        // cerr << " r(n="<<node<<",t="<<tags[i]<<",l="<<symbols_.getSymbol(tags[i]).length()<<",p="<<myProb<<")" << endl;
     }
     // cerr << endl;
     return logProb;
@@ -98,7 +98,7 @@ double WSModel::backwardStep(const WordSent & chars, const vector<Stack> & stack
         // cerr << "Lattice 0 (0,"<<initNode_<<")"<<endl;
         int currNode = initNode_;
         int idx = 0;
-        for(int i = 0; i < (int)tags.length(); i++) {
+        for(int i = 0; i < (int)tags.length()-1; i++) {
             currNode = lm_.getNext(currNode,tags[i]);
             while(!bounds[idx++]);
             // cerr << "Lattice "<<i+1<<" ("<<idx<<","<<currNode<<") t="<<tags[i]<<endl;

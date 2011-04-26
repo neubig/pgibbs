@@ -21,7 +21,7 @@ public:
 
 class PYLM {
 
-private:
+protected:
     int n_;
 
     vector<PYLMNode*> nodes_;
@@ -32,6 +32,19 @@ public:
 
     PYLM() {
         nodes_.push_back(new PYLMNode(-1,-1,1.0,0.0));
+    }
+
+    PYLM(const PYLM & lm) : n_(lm.n_), nodes_(lm.nodes_), reuse_(lm.reuse_),
+                            strens_(lm.strens_), discs_(lm.discs_) {
+        for(int i = 0; i < (int)nodes_.size(); i++)
+            if(nodes_[i])
+                nodes_[i] = new PYLMNode(*nodes_[i]);
+    }
+
+    ~PYLM() {
+        for(int i = 0; i < (int)nodes_.size(); i++)
+            if(nodes_[i])
+                delete nodes_[i];
     }
 
     int getNodeLevel(int node) {
@@ -113,10 +126,10 @@ public:
         if(node < 0 || node >= (int)nodes_.size())
             THROW_ERROR("Adding customer to invalid node: "<<node<<" (nodes.size="<<nodes_.size()<<")");
 #endif
+        // cerr << "added to "<<wid<<"@"<<node<<": ";
         if(node != 0) {
             double newBase = getProb(nodes_[node]->parent_,wid,base);
             double prob = nodes_[node]->dist_.add(wid,newBase);
-            // cerr << "added to "<<wid<<"@"<<node<<endl;
             if(nodes_[node]->dist_.tableAdded())
                 addCust(nodes_[node]->parent_,wid,base);
             return prob;

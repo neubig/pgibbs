@@ -88,7 +88,8 @@ public:
     double getProb(int id, double base) const {
         const PyTableSet * tab = counts_.getTableSet(id);
         double myCount = tab ? tab->total-disc_*tab->size() : 0;
-        // cerr << "getProb("<<id<<","<<base<<"): ( "<<myCount<<"+"<<base<<"*("<<stren_<<"+"<<tables_<<"*"<<disc_<<") )/("<<customers_<<"+"<<stren_<<")"<<endl;
+        // if(debug)
+        //     cerr << " getProb("<<id<<","<<base<<"): ( "<<myCount<<"+"<<base<<"*("<<stren_<<"+"<<tables_<<"*"<<disc_<<") )/("<<customers_<<"+"<<stren_<<")";
         return ( myCount+base*(stren_+tables_*disc_) )/(customers_+stren_);
     }
     int getTotal(int id) const {
