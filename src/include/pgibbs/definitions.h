@@ -46,10 +46,10 @@ inline void normalizeLogProbs(std::vector<double> & vec, double anneal = 1) {
 }
 
 // sample a single probability
-inline int sampleProbs(double* vec, unsigned size) {
+inline int sampleProbs(double* vec, int size) {
     double left = (double)rand()/RAND_MAX;
     int ret = 0;
-    while((left -= vec[ret]) > 0)
+    while(ret+1 < size && (left -= vec[ret]) > 0)
         ret++;
     return ret;
 }

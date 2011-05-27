@@ -119,7 +119,8 @@ public:
             symbols_.removeId(toRemove[i]);
         lm_.sampleParameters(strA_,strB_,discA_,discB_);
         for(int i = 0; i < n_; i++)
-            cerr << " s("<<i+1<<")="<<lm_.getStrength(i)<<", d("<<i+1<<")="<<lm_.getDisc(i)<<endl;
+            cerr << " v("<<i+1<<")="<<lm_.getLevelSize(i)<<", s("<<i+1<<")="<<lm_.getStrength(i)<<", d("<<i+1<<")="<<lm_.getDisc(i)<<endl;
+        cerr << " lmarr=" << lm_.getArraySize() << ", vocabarr="<<symbols_.capacity()<<","<<symbols_.hashCapacity() <<endl;
     }
 
 };

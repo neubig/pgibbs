@@ -37,6 +37,7 @@ public:
         if((int)idx_.size() <= id) idx_.resize(id+1);
         return idx_[id];
     }
+    void removeTableSet(int id) { } // do not remove, we're dense, remember?
 };
 
 class PySparseIndex {
@@ -62,6 +63,9 @@ public:
         if(it == idx_.end()) 
             it = idx_.insert( std::pair< int, PyTableSet >(id,PyTableSet()) ).first;
         return it->second;
+    }
+    void removeTableSet(int id) {
+        idx_.erase(id);
     }
 };
 
@@ -128,8 +132,10 @@ public:
         PyTableSetIter it = set.begin();
         if(mySize > 1) {
             double left = rand()*(set.total-mySize*disc_)/RAND_MAX;
-            while((left -= (*it)-disc_) > 0)
+            while((left -= (*it)-disc_) > 0) {
+                if(it + 1 == set.end()) break;
                 it++;
+            }
         }
         (*it)++;
         set.total++;
@@ -174,7 +180,7 @@ public:
         PyTableSetIter it = set.begin();
         
         if(mySize > 1) {
-            int left = (int)(((double)rand())/RAND_MAX*set.total);
+            int left = rand() % set.total;
             while((left -= (*it)) >= 0)
                 it++;
         }
@@ -186,6 +192,8 @@ public:
             tables_--;
             set.erase(it);
         }
+        if(set.total == 0)
+            counts_.removeTableSet(id);
         return getProb(id,base);
     }
 

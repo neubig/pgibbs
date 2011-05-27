@@ -25,6 +25,17 @@ protected:
 
 public:
     SymbolSet() : map_(), vocab_(), reuse_() { }
+    SymbolSet(const SymbolSet & ss) : map_(ss.map_), vocab_(ss.vocab_), reuse_(ss.reuse_) {
+        for(typename Vocab::iterator it = vocab_.begin(); it != vocab_.end(); it++) 
+            if(*it)
+                *it = new Key(**it);
+            
+    }
+    ~SymbolSet() {
+        for(typename Vocab::iterator it = vocab_.begin(); it != vocab_.end(); it++)
+            if(*it)
+                delete *it;
+    }
 
     const Key & getSymbol(T id) const {
         // if(id >= (int)vocab_.size() || id < 0 || vocab_[id] == 0) {
@@ -55,6 +66,8 @@ public:
         return const_cast< SymbolSet<Key,T,Hash>* >(this)->getId(sym,false);
     }
     size_t size() const { return vocab_.size() - reuse_.size(); }
+    size_t capacity() const { return vocab_.size(); }
+    size_t hashCapacity() const { return map_.size(); }
     void removeId(const T id) {
         map_.erase(*vocab_[id]);
         delete vocab_[id];

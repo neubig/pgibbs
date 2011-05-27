@@ -78,6 +78,10 @@ double HMMModel::backwardStep(const vector<double> & forProbs, ClassSent & tags,
         // sample if necessary
         if(sample) 
             tags[i] = sampleProbs(myTrans);
+#ifdef DEBUG_ON
+        if(tags[i] > classes_)
+            THROW_ERROR("Found a tag "<<tags[i]<<" larger than a class "<<classes_);
+#endif
         // cerr << " chose "<<tags[i]<<endl;
         totalProb += log(myTrans[tags[i]]);
     }

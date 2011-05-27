@@ -52,6 +52,14 @@ public:
         return getNodeLevel(nodes_[node]->parent_)+1;
     }
 
+    int getLevelSize(int lev) {
+        int ret = 0;
+        for(int i = 0; i < (int)nodes_.size(); i++)
+            if(nodes_[i] && getNodeLevel(i) == lev)
+                ret++;
+        return ret;
+    }
+
     void sampleParameters(double sa, double sb, double da, double db) {
         vector< vector< PyDist<PySparseIndex>* > > dists(n_);
         for(int i = 0; i < (int)nodes_.size(); i++) 
@@ -196,6 +204,10 @@ public:
         return nodes_[node]->dist_.getTotal(wid);
     }
     // int getTableCount(int node) const { return dist_.getTableCount(); }
+
+    int getArraySize() {
+        return nodes_.size();
+    }
 
 };
 
