@@ -1,8 +1,8 @@
 
-#include "labels-ws.h"
-#include "config-ws.h"
-#include "model-ws.h"
-#include "corpus-word.h"
+#include "pgibbs/labels-ws.h"
+#include "pgibbs/config-ws.h"
+#include "pgibbs/model-ws.h"
+#include "pgibbs/corpus-word.h"
 #include <string>
 #include <vector>
 

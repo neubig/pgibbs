@@ -1,7 +1,7 @@
 #ifndef CONFIG_WS_H__
 #define CONFIG_WS_H__
 
-#include "config-base.h"
+#include "pgibbs/config-base.h"
 
 namespace pgibbs {
 

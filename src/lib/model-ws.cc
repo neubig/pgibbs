@@ -1,6 +1,6 @@
 
-#include "model-ws.h"
-#include "definitions.h"
+#include "pgibbs/model-ws.h"
+#include "pgibbs/definitions.h"
 
 using namespace pgibbs;
 

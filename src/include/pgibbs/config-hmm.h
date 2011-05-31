@@ -1,7 +1,7 @@
 #ifndef CONFIG_HMM_H__
 #define CONFIG_HMM_H__
 
-#include "config-base.h"
+#include "pgibbs/config-base.h"
 
 namespace pgibbs {
 

@@ -1,8 +1,8 @@
 
-#include "labels-hmm.h"
-#include "config-hmm.h"
-#include "model-hmm.h"
-#include "corpus-word.h"
+#include "pgibbs/labels-hmm.h"
+#include "pgibbs/config-hmm.h"
+#include "pgibbs/model-hmm.h"
+#include "pgibbs/corpus-word.h"
 #include <string>
 #include <vector>
 

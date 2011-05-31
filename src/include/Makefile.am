@@ -1,4 +1,1 @@
-nobase_include_HEADERS = pgibbs/config-base.h pgibbs/config-hmm.h \
-    pgibbs/corpus-base.h pgibbs/corpus-word.h pgibbs/definitions.h \
-    pgibbs/dist-dirichlet.h pgibbs/dist-py.h pgibbs/model-base.h \
-    pgibbs/model-hmm.h
+nobase_include_HEADERS = gng/counter.h gng/misc-func.h gng/samp-gen.h gng/string.h gng/symbol-map.h gng/symbol-set.h pgibbs/config-base.h pgibbs/config-hmm.h pgibbs/config-ws.h pgibbs/config.h pgibbs/corpus-base.h pgibbs/corpus-word.h pgibbs/definitions.h pgibbs/dist-dirichlet.h pgibbs/dist-py.h pgibbs/dist-pylm.h pgibbs/labels-base.h pgibbs/labels-hmm.h pgibbs/labels-ws.h pgibbs/model-base.h pgibbs/model-hmm.h pgibbs/model-ws.h 

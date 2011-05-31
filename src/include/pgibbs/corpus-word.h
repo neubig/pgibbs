@@ -8,8 +8,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include "definitions.h"
-#include "corpus-base.h"
+#include "pgibbs/definitions.h"
+#include "pgibbs/corpus-base.h"
 
 // TODO: fix
 using namespace std;

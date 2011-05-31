@@ -8,8 +8,8 @@
 #include <string>
 #include <tr1/unordered_map>
 
-#include "labels-base.h"
-#include "corpus-word.h"
+#include "pgibbs/labels-base.h"
+#include "pgibbs/corpus-word.h"
 #include "gng/samp-gen.h"
 
 using namespace std;

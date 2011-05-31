@@ -2,7 +2,7 @@
 #define PYDIST_H__
 
 #include "gng/samp-gen.h"
-#include "definitions.h"
+#include "pgibbs/definitions.h"
 #include <vector>
 #include <stdexcept>
 #include <cmath>

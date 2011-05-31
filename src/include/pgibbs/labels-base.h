@@ -8,8 +8,8 @@
 #include <string>
 #include <tr1/unordered_map>
 
-#include "corpus-base.h"
-#include "config-base.h"
+#include "pgibbs/corpus-base.h"
+#include "pgibbs/config-base.h"
 
 using namespace std;
 

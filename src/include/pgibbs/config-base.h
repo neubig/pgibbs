@@ -1,7 +1,7 @@
 #ifndef CONFIG_BASE_H__
 #define CONFIG_BASE_H__
 
-#include "definitions.h"
+#include "pgibbs/definitions.h"
 #include <string>
 #include <vector>
 #include <cstdlib>

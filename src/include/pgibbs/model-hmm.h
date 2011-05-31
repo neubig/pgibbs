@@ -1,10 +1,10 @@
 #ifndef MODEL_HMM_H__
 #define MODEL_HMM_H__
 
-#include "model-base.h"
-#include "config-hmm.h"
-#include "labels-hmm.h"
-#include "dist-py.h"
+#include "pgibbs/model-base.h"
+#include "pgibbs/config-hmm.h"
+#include "pgibbs/labels-hmm.h"
+#include "pgibbs/dist-py.h"
 
 namespace pgibbs {
 

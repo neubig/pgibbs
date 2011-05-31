@@ -1,11 +1,11 @@
 #ifndef MODEL_WS_H__
 #define MODEL_WS_H__
 
-#include "model-base.h"
-#include "config-ws.h"
-#include "labels-ws.h"
-#include "dist-py.h"
-#include "dist-pylm.h"
+#include "pgibbs/model-base.h"
+#include "pgibbs/config-ws.h"
+#include "pgibbs/labels-ws.h"
+#include "pgibbs/dist-py.h"
+#include "pgibbs/dist-pylm.h"
 #include <map>
 
 using namespace std;

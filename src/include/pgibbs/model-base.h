@@ -1,9 +1,9 @@
 #ifndef MODEL_BASE_H__
 #define MODEL_BASE_H__
 
-#include "config-base.h"
-#include "corpus-base.h"
-#include "labels-base.h"
+#include "pgibbs/config-base.h"
+#include "pgibbs/corpus-base.h"
+#include "pgibbs/labels-base.h"
 
 namespace pgibbs {
 

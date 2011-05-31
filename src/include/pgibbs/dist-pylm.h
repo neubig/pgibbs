@@ -1,7 +1,7 @@
 #ifndef DIST_PYLM_H___
 #define DIST_PYLM_H___
 
-#include "dist-py.h"
+#include "pgibbs/dist-py.h"
 #include <map>
 
 namespace pgibbs {

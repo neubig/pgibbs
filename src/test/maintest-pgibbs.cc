@@ -1,7 +1,7 @@
 
 #include <iostream>
-#include "model-hmm.h"
-#include "model-ws.h"
+#include "pgibbs/model-hmm.h"
+#include "pgibbs/model-ws.h"
 
 using namespace std;
 using namespace pgibbs;

@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "definitions.h"
+#include "pgibbs/definitions.h"
 #include "gng/symbol-set.h"
 
 // TODO: fix

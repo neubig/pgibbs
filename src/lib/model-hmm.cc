@@ -1,6 +1,6 @@
 
-#include "model-hmm.h"
-#include "definitions.h"
+#include "pgibbs/model-hmm.h"
+#include "pgibbs/definitions.h"
 
 using namespace pgibbs;
 

@@ -1,7 +1,7 @@
 
-#include "model-base.h"
-#include "model-hmm.h"
-#include "model-ws.h"
+#include "pgibbs/model-base.h"
+#include "pgibbs/model-hmm.h"
+#include "pgibbs/model-ws.h"
 #include "gng/misc-func.h"
 
 using namespace pgibbs;
@@ -143,15 +143,15 @@ void* samplingPass(void* ptr) {
 
         // performing the metropolis-hastings step
         accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
-        // cerr << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<") == " <<accept<< endl;
+        cout << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<") == " <<accept;
 
         if(job.mod_->getSkipIters() >= job.iter_ || accept >= 0 || bernoulliSample(exp(accept))) {
-            // cout << ": accepted"<<endl;
+            cout << ": accept"<<endl;
             job.accepted_++;
             job.sentAccepted_[i]++;
             job.likelihood_ += trueProbs.second;
         } else {
-            // cout << ": REJECTED!"<<endl;
+            cout << ": reject"<<endl;
             job.mod_->removeSentence(s,(*job.corp_)[s],(*job.labs_)[s]);
             (*job.labs_)[s] = oldTags;
             job.mod_->addSentence(s,(*job.corp_)[s],(*job.labs_)[s]);
@@ -159,8 +159,8 @@ void* samplingPass(void* ptr) {
         }
 
         if(++job.sents_ % 1000 == 0 && job.mod_->getPrintStatus()) {
-            cout << "\r" << job.sents_;
-            cout.flush();
+            cerr << "\r" << job.sents_;
+            cerr.flush();
         }
 
     }
@@ -359,16 +359,16 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
 
             // perform the acceptance/rejection step
             accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
-            // cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")" << accept<<endl;
+            cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")" << accept;
 
             if(iter <= skipIters_ || accept >= 0 || bernoulliSample(exp(accept))) {
-                // cout << ": accepted"<<endl;
+                cout << ": accepted"<<endl;
                 accepted_ += myBlock;
                 for(int j = 0; j < myBlock; j++)
                     sentAccepted_[sentOrder_[i+j]]++;
                 likelihood_ += trueProbs.second;
             } else {
-                // cout << ": REJECTED!"<<endl;
+                cout << ": rejected"<<endl;
                 for(int j = 0; j < myBlock; j++) {
                     int s = sentOrder_[i+j];
                     removeSentence(s,corp[s],labs[s]);
@@ -384,8 +384,8 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
 #endif       
 
             if((i+1) / 1000 != lastSent) {
-                cout << "\r" << i;
-                cout.flush();
+                cerr << "\r" << i;
+                cerr.flush();
                 lastSent = (i+1)/1000;
             }
 
