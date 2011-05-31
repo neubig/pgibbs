@@ -1,0 +1,5 @@
+This package implements parallel Gibbs sampling using both blocked and multi-sampler methods. The two executables are src/bin/pgibbs-ws for word segmentation and src/bin/pgibbs-hmm for POS tagging.
+
+In order to replicate our experiments, you must have the Chinese Treebank 5.0. For HMM-based tagging, the input is divided into words:
+
+
