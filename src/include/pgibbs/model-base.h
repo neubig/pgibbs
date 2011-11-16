@@ -15,7 +15,7 @@ protected:
     ConfigBase conf_;
 
     // saved variables used in every model
-    int iters_, accepted_, sents_, numThreads_, blockSize_, skipIters_;
+    int iters_, accepted_, sents_, numThreads_, blockSize_, skipIters_, verbose_;
     bool doShuffle_, printModel_, printStatus_, sampParam_;
     string prefix_;
     vector<int> sentOrder_, sentAccepted_;
@@ -40,6 +40,8 @@ public:
     void trainInParallel(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
     // train using the blocked sampling method
     void trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
+    // train in blocks, but using single acceptance/rejection
+    void trainInBlocksSingle(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
 
     // function to clear the model (remove all sentences and check if empty)
     void clear(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs);
@@ -54,12 +56,15 @@ public:
             this->trainInParallel(sent,labs);
         else if (sampMeth == "block")
             this->trainInBlocks(sent,labs);
+        else if (sampMeth == "single")
+            this->trainInBlocksSingle(sent,labs);
         else
             THROW_ERROR("Illegal -sampmeth argument '"<<sampMeth<<"'"<<endl);
     }
 
     // -------------------- getters/setters -----------------------------
 
+    int getVerbose() const { return verbose_; }
     int getAccepted() const { return accepted_; }
     int getSkipIters() const { return skipIters_; }
     bool getPrintStatus() const { return printStatus_; }

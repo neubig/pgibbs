@@ -33,6 +33,7 @@ public:
     
     // output
     pair<double,double> propProbs_;
+    vector<pair<double,double> > eachProp_;
 
     // statistics
     double likelihood_;
@@ -44,6 +45,7 @@ public:
     void setNumSents(int numSents) {
         numSents_ = numSents;
         sentAccepted_.resize(numSents_,0);
+        eachProp_.resize(numSents_,pair<double,double>(0,0));
     }
     int getNumSents() { return numSents_; }
 
@@ -59,13 +61,14 @@ void ModelBase<Sent,Labs>::initialize(CorpusBase<Sent> & corp, LabelsBase<Sent,L
     sentInc_.resize(cs,false);
     if(add) {
         for(i = 0; i < cs; i++) {
-            likelihood += addSentence(i,corp[i],labs[i]);
+            addSentence(i,corp[i],labs[i]);
             sentOrder_[i] = i;
         }
         cout << "Likelihood after initialization: " << likelihood << endl;
     }
 
     // variables shared by all training processes
+    verbose_ = conf_.getInt("verbose");
     iters_ = conf_.getInt("iters");
     doShuffle_ = conf_.getBool("shuffle");
     skipIters_ = conf_.getInt("skipiters");
@@ -143,15 +146,18 @@ void* samplingPass(void* ptr) {
 
         // performing the metropolis-hastings step
         accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
-        cout << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<") == " <<accept;
+        if(job.mod_->getVerbose() > 0)
+            cout << s << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<") == " <<accept;
 
         if(job.mod_->getSkipIters() >= job.iter_ || accept >= 0 || bernoulliSample(exp(accept))) {
-            cout << ": accept"<<endl;
+            if(job.mod_->getVerbose() > 0)
+                cout << ": accept"<<endl;
             job.accepted_++;
             job.sentAccepted_[i]++;
             job.likelihood_ += trueProbs.second;
         } else {
-            cout << ": reject"<<endl;
+            if(job.mod_->getVerbose() > 0)
+                cout << ": reject"<<endl;
             job.mod_->removeSentence(s,(*job.corp_)[s],(*job.labs_)[s]);
             (*job.labs_)[s] = oldTags;
             job.mod_->addSentence(s,(*job.corp_)[s],(*job.labs_)[s]);
@@ -288,6 +294,7 @@ void* blockSample(void* ptr) {
         s = myJob.sentOrder_[i];
         dub = myJob.mod_->sampleSentence(s,(*myJob.corp_)[s],(*myJob.labs_)[s],(*myJob.labs_)[s]);
         myJob.propProbs_.first += dub.first; myJob.propProbs_.second += dub.second;
+        myJob.eachProp_[i] = dub;
     }
     return NULL;
 }
@@ -359,16 +366,19 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
 
             // perform the acceptance/rejection step
             accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
-            cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")" << accept;
+            if(verbose_ > 0)
+                cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")" << accept;
 
             if(iter <= skipIters_ || accept >= 0 || bernoulliSample(exp(accept))) {
-                cout << ": accepted"<<endl;
+                if(verbose_ > 0)
+                    cout << ": accepted"<<endl;
                 accepted_ += myBlock;
                 for(int j = 0; j < myBlock; j++)
                     sentAccepted_[sentOrder_[i+j]]++;
                 likelihood_ += trueProbs.second;
             } else {
-                cout << ": rejected"<<endl;
+                if(verbose_ > 0)
+                    cout << ": rejected"<<endl;
                 for(int j = 0; j < myBlock; j++) {
                     int s = sentOrder_[i+j];
                     removeSentence(s,corp[s],labs[s]);
@@ -402,6 +412,132 @@ void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sen
         
     }
 }
+
+// train in blocks
+template <class Sent, class Labs>
+void ModelBase<Sent,Labs>::trainInBlocksSingle(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) {
+    
+    // initialize the model
+    initialize(corp,labs,true);
+
+    // training variables
+    int cs = corp.size();
+    printStatus_ = true;
+    vector<Labs> oldLabs(blockSize_);    // old labels to save
+    vector< BlockJob<Sent,Labs> > jobs(numThreads_,BlockJob<Sent,Labs>(this,&corp,&labs));  // jobs
+    timeval tStart, tEnd;
+
+    // perform training
+    for(int iter = 1; iter <= iters_; iter++) {
+
+        // shuffle the sentences and divide them appropriately
+        if(doShuffle_) 
+            shuffle(sentOrder_);
+
+        // here
+        likelihood_ = 0; accepted_ = 0;
+        int lastSent = 0;
+        double accept = 0.0;
+        
+        gettimeofday(&tStart, NULL);
+        
+        // for each block
+        for(int i = 0; i < cs; i += blockSize_) {
+
+            // remove all of the sentences from the distribution
+            int myBlock = min(cs-i,blockSize_);
+            for(int j = 0; j < myBlock; j++) {
+                int s = sentOrder_[i+j];
+                oldLabs[j] = labs[s];
+                removeSentence(s,corp[s],labs[s]);
+            }
+
+            // divide the parts of the array to be handled by each thread and sample in parallel
+            cacheProbabilities();
+            for(int j = 0; j < numThreads_; j++) {
+                jobs[j].sentOrder_ = (&sentOrder_[i])+j*myBlock/numThreads_;
+                jobs[j].setNumSents( (j+1)*myBlock/numThreads_ - j*myBlock/numThreads_ );
+                jobs[j].propProbs_ = pair<double,double>(0.0,0.0);
+                jobs[j].iter_ = iter;
+                pthread_create( &jobs[j].thread_, NULL, blockSample<Sent,Labs>, (void*) &jobs[j]);
+                // blockSample<Sent,Labs>(&jobs[j]);
+            }
+
+            // wait for the threads to complete
+            for(int j = 0; j < numThreads_; j++)
+                pthread_join(jobs[j].thread_, NULL);
+            
+            // Re-add the single samples
+            for(int j = 0; j < myBlock; j++) {
+                int s = sentOrder_[i+j];
+                addSentence(s,corp[s],oldLabs[j]);
+            }
+
+            // For each sample in each block, perform the acceptance/rejection step
+            int samp_id = 0;
+            for(int j = 0; j < numThreads_; j++) {
+                for(int k = 0; k < jobs[j].getNumSents(); k++) {
+                    pair<double,double> trueProbs, propProbs;
+
+                    // First, remove the old sentence
+                    int s = sentOrder_[i+samp_id];
+                    trueProbs.first = removeSentence(s,corp[s],oldLabs[samp_id]);
+
+                    // Save the correct proposal probabilities
+                    propProbs = jobs[j].eachProp_[k];
+
+                    // Add the new sentence
+                    trueProbs.second = addSentence(s,corp[s],labs[s]);
+
+                    // perform the acceptance/rejection step
+                    accept = trueProbs.second-trueProbs.first+propProbs.first-propProbs.second;
+                    if(verbose_ > 0)
+                        cout << i << " (tn=" <<trueProbs.second<<")-(tc="<<trueProbs.first<<")+(pc="<<propProbs.first<<")-(pn="<<propProbs.second<<")" << accept;
+
+                    if(skipIters_ >= iter || accept >= 0 || bernoulliSample(exp(accept))) {
+                        if(verbose_ > 0)
+                            cout << ": accept"<<endl;
+                        accepted_++;
+                        sentAccepted_[i]++;
+                        likelihood_ += trueProbs.second;
+                    } else {
+                        if(verbose_ > 0)
+                            cout << ": reject"<<endl;
+                        removeSentence(s,corp[s],labs[s]);
+                        labs[s] = oldLabs[samp_id];
+                        addSentence(s,corp[s],labs[s]);
+                        likelihood_ += trueProbs.first;
+                    }
+
+                    samp_id++;
+                }
+            }
+
+#ifdef DEBUG_ON
+            if(likelihood_ != likelihood_ || accepted_ != accepted_)
+                THROW_ERROR("NaN found in training l="<<likelihood_<<", a="<<accepted_);      
+#endif       
+
+            if((i+1) / 1000 != lastSent) {
+                cerr << "\r" << i;
+                cerr.flush();
+                lastSent = (i+1)/1000;
+            }
+
+        }
+        gettimeofday(&tEnd, NULL);
+        iterTime_ = timeDifference(tStart,tEnd);
+ 
+        // print information about the iteration
+        printIterationResult(iter,corp,labs);
+
+        // sample the parameters
+        if(sampParam_)
+            sampleParameters();
+        
+    }
+}
+
 
 // make the functions for the HMM model
 template class ModelBase<WordSent,ClassSent>;

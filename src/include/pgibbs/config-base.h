@@ -39,6 +39,7 @@ protected:
 public:
 
     ConfigBase() : minArgs_(0), maxArgs_(255) { 
+        addConfigEntry("verbose", "0", "The level of verbosity to use" );
 		addConfigEntry("iters",   "10", "The number of iterations to perform");
 		addConfigEntry("threads", "1",  "The number of threads to use");
 		addConfigEntry("blocksize",  "1",  "The size of one block (for blocked sampling)");
@@ -108,6 +109,8 @@ public:
             if(getInt("blocksize") > 1)
                 THROW_ERROR("Blocksize > 1 ("<<getInt("blocksize")<<") for parallel sampling");
         } else if(sampMeth == "block") {
+            // nothing to check for now
+        } else if(sampMeth == "single") {
             // nothing to check for now
         } else {
             THROW_ERROR("Unknown sampling method "<<sampMeth);
