@@ -13,8 +13,6 @@ Technical Report. 2014.
 Data Preparation
 ----------------
 
-In order to replicate our experiments, you must have the Chinese Treebank 5.0, which can be obtained from the LDC (details [here](http://www.ldc.upenn.edu/Catalog/CatalogEntry.jsp?catalogId=LDC2005T01)).
-
 For HMM-based tagging, the input is divided into words:
 
 上海 浦东 开发 与 法制 建设 同步
@@ -22,6 +20,8 @@ For HMM-based tagging, the input is divided into words:
 And for word-segmentation, the input is divided into characters:
 
 上 海 浦 东 开 发 与 法 制 建 设 同 步
+
+If you want to replicate experiments in the technical report, you must have the Chinese Treebank 5.0, which can be obtained from the LDC (details [here](http://www.ldc.upenn.edu/Catalog/CatalogEntry.jsp?catalogId=LDC2005T01)).
 
 Running Experiments
 -------------------
