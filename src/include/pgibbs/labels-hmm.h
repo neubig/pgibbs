@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 #include "pgibbs/labels-base.h"
 #include "pgibbs/corpus-word.h"

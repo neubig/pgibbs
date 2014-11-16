@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 #include "pgibbs/corpus-base.h"
 #include "pgibbs/config-base.h"

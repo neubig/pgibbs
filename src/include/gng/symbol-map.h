@@ -2,23 +2,23 @@
 #define GNG_SYMBOL_MAP_H__
 
 #include "string.h"
-#include <tr1/unordered_map>
-#include <tr1/unordered_set>
+#include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <vector>
 #include <iostream>
 
 namespace gng {
 
-template < class Key, class T, class Hash = std::tr1::hash<Key> >
-class SymbolMap : public std::tr1::unordered_map< Key, T, Hash > {
+template < class Key, class T, class Hash = std::hash<Key> >
+class SymbolMap : public std::unordered_map< Key, T, Hash > {
 
 protected:
 
     std::vector<T> nextKeys_;
 
 public:
-    SymbolMap() : std::tr1::unordered_map<Key,T,Hash>() { }
+    SymbolMap() : std::unordered_map<Key,T,Hash>() { }
 
     T getId(const Key & sym, bool add = false) {
         typename SymbolMap<Key,T,Hash>::const_iterator it = this->find(sym);
@@ -39,7 +39,7 @@ public:
     }
     
     void removeElements(const std::vector<T> & vec) {
-        std::tr1::unordered_set<T> mySet;
+        std::unordered_set<T> mySet;
         for(typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); it++)
             mySet.insert(*it);
         std::vector<Key> removeKeys; removeKeys.reserve(vec.size());
