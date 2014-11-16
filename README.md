@@ -1,9 +1,9 @@
-pgibbs - Parallel Gibbs Sampling
-================================
+pgibbs - Parallelized Unsupervised word segmentation and POS tagging
+====================================================================
 
 by [Graham Neubig](http://www.phontron.com)
 
-This package implements parallel Gibbs sampling using both blocked and multi-sampler methods. The two executables are src/bin/pgibbs-ws for word segmentation and src/bin/pgibbs-hmm for POS tagging.
+This package implements parallel Gibbs sampling for word segmentation and POS tagging using both blocked and multi-sampler methods. The two executables are src/bin/pgibbs-ws for word segmentation and src/bin/pgibbs-hmm for POS tagging.
 You can find more details in the following paper:
 
 "[Simple, Correct Parallelization for Blocked Gibbs Sampling](http://www.phontron.com/paper/neubig14pgibbs.pdf)".
