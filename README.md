@@ -10,6 +10,15 @@ You can find more details in the following paper:
 Graham Neubig.
 Technical Report. 2014.
 
+Installation
+------------
+
+To compile pgibbs, download it from git, and run
+
+    autoreconf -i
+    ./configure
+    make
+
 Data Preparation
 ----------------
 
@@ -23,8 +32,8 @@ And for word-segmentation, the input is divided into characters:
 
 If you want to replicate experiments in the technical report, you must have the Chinese Treebank 5.0, which can be obtained from the LDC (details [here](http://www.ldc.upenn.edu/Catalog/CatalogEntry.jsp?catalogId=LDC2005T01)).
 
-Running Experiments
--------------------
+Running Programs
+----------------
 
 Both programs can be run with
 
@@ -47,3 +56,14 @@ For word segmentation only:
 For HMM only:
 
     -classes 30             // The number of classes in the model
+
+Execution Examples
+------------------
+
+An example of running the program for part-of-speech tagging for the file test.words on 4 cores is below:
+
+    pgibbs-hmm -iters 500 -threads 4 -blocksize 16 -sampmeth block -skipiters 500 test.words output-hmm
+
+An example of running the program for word segmentation on the file test.chars on 4 cores is below:
+
+    pgibbs-ws  -iters 500 -threads 4 -blocksize 16 -sampmeth block -skipiters 0   test.chars output-ws
