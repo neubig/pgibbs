@@ -2,18 +2,18 @@
 #define GNG_SYMBOL_SET_H__
 
 #include "string.h"
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <vector>
 #include <stdexcept>
 
 namespace gng {
 
-template < class Key, class T, class Hash = std::tr1::hash<Key> >
+template < class Key, class T, class Hash = std::hash<Key> >
 class SymbolSet {
 
 public:
 
-    typedef std::tr1::unordered_map< Key, T, Hash > Map;
+    typedef std::unordered_map< Key, T, Hash > Map;
     typedef std::vector< Key* > Vocab;
     typedef std::vector< T > Ids;
 

@@ -42,10 +42,10 @@ public:
 
 class PySparseIndex {
 protected:
-    std::tr1::unordered_map< int, PyTableSet > idx_;
+    std::unordered_map< int, PyTableSet > idx_;
 public:
-    typedef std::tr1::unordered_map< int, PyTableSet >::const_iterator const_iterator;
-    typedef std::tr1::unordered_map< int, PyTableSet >::iterator iterator;
+    typedef std::unordered_map< int, PyTableSet >::const_iterator const_iterator;
+    typedef std::unordered_map< int, PyTableSet >::iterator iterator;
     iterator begin() { return idx_.begin(); }
     iterator end() { return idx_.end(); }
     PyTableSet & iterTableSet(iterator it) { return it->second; }

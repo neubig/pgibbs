@@ -6,11 +6,10 @@
 #include <vector>
 #include <cstdlib>
 #include <sstream>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 // TODO: remove
 using namespace std;
-using namespace std::tr1;
 
 namespace pgibbs {
 
