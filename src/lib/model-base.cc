@@ -539,6 +539,8 @@ void ModelBase<Sent,Labs>::trainInBlocksSingle(CorpusBase<Sent> & corp, LabelsBa
 }
 
 
+namespace pgibbs {
 // make the functions for the HMM model
 template class ModelBase<WordSent,ClassSent>;
 template class ModelBase<WordSent,Bounds>;
+}
