@@ -27,28 +27,10 @@ AC_PROG_CC
 AC_LANG_CPLUSPLUS
 LDFLAGS="$LDFLAGS -lpthread"
 
+AC_CONFIG_MACRO_DIR([m4])
+
 # Checks for libraries.
-
 AC_SYS_LARGEFILE
-
-# # Boost libraries...
-# orig_CPPFLAGS="$CPPFLAGS"
-# orig_LDFLAGS="$LDFLAGS"
-# CPPFLAGS="$orig_CPPFLAGS $ICU_CPPFLAGS"
-# LDFLAGS="$orig_LDFLAGS $ICU_LDFLAGS"
-# 
-# BOOST_REQUIRE([1.38])
-# BOOST_PROGRAM_OPTIONS
-# BOOST_FILESYSTEM
-# BOOST_IOSTREAMS
-# BOOST_SYSTEM
-# 
-# CPPFLAGS="$orig_CPPFLAGS"
-# LDFLAGS="$orig_LDFLAGS"
-# 
-# ## save pthred-flag, computed by-product of boost-threads
-# PTHREAD_FLAGS=$boost_cv_pthread_flag
-# AC_SUBST(PTHREAD_FLAGS)
 
 # Checks for header files.
 AC_CHECK_HEADERS([sys/time.h unistd.h])
@@ -60,5 +42,11 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([gettimeofday pow sqrt])
+
+AX_CXX_COMPILE_STDCXX_0X
+if test "x$ax_cv_cxx_compile_cxx0x_cxx" = "xyes" ; then
+    CXXFLAGS="$CXXFLAGS -std=c++0x"
+    AC_SUBST(CXXFLAGS)
+fi
 
 AC_OUTPUT
