@@ -55,11 +55,13 @@ The input data is the previously mentioned files, and the output data is a prefi
                             //  number of iterations, when set equal to the number of
                             //  iterations, MH will not be performed
 
-For word segmentation only:
+One thing to note here is that if you are using "-sampmeth block", "-blocksize" should be larger than "-threads", maybe 4 times larger (see the paper for details).
+
+There are also additional options for word segmentation only:
 
     -n 2                    // The n-gram size of the model
 
-For HMM only:
+Or for the HMM only:
 
     -classes 30             // The number of classes in the model
 
