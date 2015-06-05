@@ -302,6 +302,10 @@ void* blockSample(void* ptr) {
 // train in blocks
 template <class Sent, class Labs>
 void ModelBase<Sent,Labs>::trainInBlocks(CorpusBase<Sent> & corp, LabelsBase<Sent,Labs> & labs) {
+
+    // sanity checks
+    if(numThreads_ > blockSize_)
+        THROW_ERROR("The size of blocks (-blocksize) must be greater than or equal to the number of threads (-threads). See the paper for details on the ideal block size.");
     
     // initialize the model
     initialize(corp,labs,true);

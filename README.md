@@ -6,9 +6,15 @@ by [Graham Neubig](http://www.phontron.com)
 This package implements parallel Gibbs sampling for word segmentation and POS tagging using both blocked and multi-sampler methods. The two executables are src/bin/pgibbs-ws for word segmentation and src/bin/pgibbs-hmm for POS tagging.
 You can find more details in the following paper:
 
-"[Simple, Correct Parallelization for Blocked Gibbs Sampling](http://www.phontron.com/paper/neubig14pgibbs.pdf)".
-Graham Neubig.
-Technical Report. 2014.
+"[Simple, Correct Parallelization for Blocked Gibbs Sampling](http://www.phontron.com/paper/neubig14pgibbs.pdf)". Graham Neubig. Technical Report. 2014.
+
+    @techreport{neubig14pgibbs,
+      author = {Graham Neubig},
+      title = {Simple, Correct Parallelization for Blocked Gibbs Sampling},
+      institution = {Nara Institute of Science and Technology},
+      year = {2014},
+      url = {http://www.phontron.com/paper/neubig14pgibbs.pdf}
+    }
 
 Installation
 ------------
