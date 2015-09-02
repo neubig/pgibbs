@@ -47,10 +47,12 @@ public:
     void print(const CorpusBase<WordSent> & corp, ostream & out) {
         int cs = size(), i, j;
         for(i = 0; i < cs; i++) {
-            out << corp.getSymbol(corp[i][0]);
-            for(j = 1; j < (int)(*this)[i].size(); j++) {
-                if((*this)[i][j-1]) out << " ";
-                out << corp.getSymbol(corp[i][j]);
+            if (corp[i].length() > 0) {
+                out << corp.getSymbol(corp[i][0]);
+                for(j = 1; j < (int)(*this)[i].size(); j++) {
+                    if((*this)[i][j-1]) out << " ";
+                    out << corp.getSymbol(corp[i][j]);
+                }
             }
             out << endl;
         }
